@@ -1,0 +1,168 @@
+import React, { useState, useEffect } from 'react';
+import { Image, StyleSheet, Text, View, TextInput, Button, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import * as SQLite from 'expo-sqlite';
+
+export default function App() {
+    const [name, setName] = useState();
+    const [experience, setExperience] = useState();
+    const [recordSet, setRecordSet] = useState([]);
+
+    // this is the command to tell system to establish the connection
+    const db = SQLite.openDatabase('db.db');
+
+    // set the database with table name and field name
+    const init = () => {
+        db.transaction(tx => {
+            tx.executeSql('CREATE TABLE IF NOT EXISTS museum(id INTEGER PRIMARY KEY NOT NULL, name TEXT, experience TEXT);');
+        });
+        console.log('Database Created');
+    }
+
+    const insert = () => {
+        db.transaction(tx => {
+            tx.executeSql('INSERT INTO museum (name, experience) VALUES (?,?)', [name, experience]);
+            tx.executeSql('SELECT * FROM museum', [], (tx, results) => {
+                setRecordSet([]);
+                setRecordSet(results.rows._array);
+            });
+            Alert.alert('Successful', 'Your comment upload!', [{ text: 'OK' }]);
+        });
+    }
+
+    useEffect(() => {
+        init();
+    }, []);
+
+
+    return (
+        <View style={styles.container}>
+            {/* The header of Museum*/}
+            <View style={{ flexDirection: 'row', backgroundColor: "#000F30" }}>
+                <Image style={styles.image1} source={{ uri: 'https://benton.uconn.edu/wp-content/uploads/sites/2454/2018/11/the-benton-logo-gray.png' }} />
+                <Text style={styles.title}>William Benton Museum of Art</Text>
+            </View>
+
+            {/*Description*/}
+            <ScrollView>
+                <Text style={{ fontWeight: "bold", fontSize: 22, marginTop: 10, marginStart: 10, color: '#D2691E', textDecorationLine: 'underline' }}>About the Museum</Text>
+                <Text style={{ fontWeight: "bold", fontSize: 17, marginTop: 10, color: '#000F30', marginStart: 10, marginEnd: 8 }}>
+                    The William Benton Museum of Art is Connecticut’s State art museum, located on the University
+                    of Connecticut campus at Storrs. Drawing largely from its collection of over 6,500 works of art,
+                    the Museum presents exhibitions of art dating from the 15th through the 21st centuries. The museum
+                    also creates special exhibitions drawn from outside sources as well as loaned exhibitions.
+                    Special events include gallery talks, campus art walks, academic and non-academic discussions,
+                    musical performances, and family programs.
+                </Text>
+
+                {/*Show Picture*/}
+                <Text style={{ fontWeight: "bold", fontSize: 22, marginTop: 10, marginStart: 10, color: '#D2691E', textDecorationLine: 'underline' }}>Current Online Exhibits</Text>
+                <View style={{ flexDirection: 'column', marginTop: 10, alignItems: 'center' }}>
+                    <Image style={{ width: 380, height: 180 }} source={{ uri: 'https://benton.uconn.edu/wp-content/uploads/sites/2454/2020/10/2012.4.21_Ingersoll-400x286.jpg' }} />
+                    <Text style={{ fontWeight: "bold", color: 'dimgray', fontSize: 16 }}>The Human Epoch: Living in the Anthropocene</Text>
+                </View>
+
+                {/*Comment*/}
+                <View style={{ backgroundColor: '#000F30', marginTop: 10 }}>
+                    <Text style={{ fontWeight: "bold", fontSize: 22, marginTop: 5, marginBottom: 5, marginStart: 10, color: 'white' }}>Share your experience!</Text>
+                </View>
+                <View style={{ marginTop: 5, flexDirection: 'row', marginStart: 10, marginEnd: 5, backgroundColor: 'antiquewhite' }}>
+                    <View style={{ backgroundColor: "burlywood", flex: 1 }}>
+                        <Text style={styles.user}>Ellen</Text>
+                    </View>
+                    <Text style={styles.comment}>You can get many inspiration at here!</Text>
+                </View>
+                <View style={{ marginTop: 5, flexDirection: 'row', marginStart: 10, marginEnd: 5, backgroundColor: 'antiquewhite' }}>
+                    <View style={{ backgroundColor: "burlywood", flex: 1 }}>
+                        <Text style={styles.user}>Duke</Text>
+                    </View>
+                    <Text style={styles.comment}>Really great place to go!</Text>
+                </View>
+
+                {/*Create a database for new comment*/}
+                {
+                    recordSet.map(item => (
+                        <View key={item.id} >
+                            <View style={{ marginTop: 5, flexDirection: 'row', marginStart: 10, marginEnd: 5, backgroundColor: 'antiquewhite' }}>
+                                <View style={{ backgroundColor: "burlywood", flex: 1 }}>
+                                    <Text style={styles.user}>{item.name}</Text>
+                                </View>
+                                <Text style={styles.comment}>{item.experience}</Text>
+                            </View>
+                        </View>))
+                }
+
+                <Text style={{ fontWeight: 'bold', fontSize: 17, marginTop: 10, color: '#D2691E', marginStart: 10 }}>Want to share your experience at here?</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10 }}>
+                    <Text style={{ flex: 1, fontSize: 17, fontWeight: 'bold' }}>Enter your name:</Text>
+                    <TextInput style={styles.textInput} placeholder="Any name you want to use..." onChangeText={(item) => setName(item)} value={name} />
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10 }}>
+                    <Text style={{ flex: 1, fontSize: 17, fontWeight: 'bold' }}>Enter your experience:</Text>
+                    <TextInput style={styles.textInput} placeholder="Say something?" onChangeText={(item) => setExperience(item)} value={experience} />
+                </View>
+
+
+                <View style={{ alignItems: 'center',marginBottom:30}}>
+                    <TouchableOpacity onPress={insert} style={{ backgroundColor: '#000F30' }}>
+                        <Text style={{ color: 'white', fontWeight: 'bold', padding: 10, fontSize: 15 }}>Submit</Text>
+                    </TouchableOpacity>
+                </View>
+
+
+
+            </ScrollView>
+        </View>
+
+    );
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: "white",
+        marginTop: 30,
+        marginBottom: 20
+    },
+    title: {
+        fontWeight: "bold",
+        fontSize: 30,
+        color: "white",
+        marginLeft: 20,
+        marginTop: 20,
+        flex: 2
+    },
+    image1: {
+        width: '110%',
+        height: 90,
+        resizeMode: 'contain',
+        marginTop: 15,
+        marginBottom: 15,
+        marginLeft: 15,
+        flex: 1,
+    },
+    image2: {
+        width: 100,
+        height: 90,
+        resizeMode: 'contain',
+        flex: 2,
+        marginEnd: 20
+    },
+    text: {
+        fontWeight: "bold",
+        fontSize: 16,
+        marginTop: 10,
+    },
+    textInput: {
+        borderBottomColor: 'gray',
+        borderBottomWidth: 1,
+        fontSize: 15,
+        fontWeight: '400',
+        flex: 1.5
+    },
+    user: {
+        fontWeight: 'bold', fontSize: 17, marginTop: 5, marginBottom: 5, color: '#000F30', marginEnd: 3, marginLeft: 10,
+    },
+    comment: {
+        fontWeight: '300', fontSize: 15, marginTop: 5, marginBottom: 5, color: '#000F30', marginStart: 5, marginEnd: 10, flex: 5
+    }
+});

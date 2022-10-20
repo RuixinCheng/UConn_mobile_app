@@ -1,0 +1,49 @@
+import React from 'react';
+import { Image, StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
+
+import { NavigationContainer } from '@react-navigation/native';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+
+import Home from './Homepage';
+import Jorgen from './Jorgensen';
+import SU from './Su';
+import Lib from './Library';
+import Muse from './Museum';
+import Recreation from './Recreation';
+
+const Drawer = createDrawerNavigator();
+ 
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Drawer.Navigator drawerContentOptions={
+        {
+          activeTintColor: 'white',
+          inactiveTintColor: '#4682B4',
+          activeBackgroundColor: '#000F30',
+          inactiveBackgroundColor: '#F0F8FF',
+          labelStyle: {
+            fontSize: 16,
+            fontWeight:'800'
+          }
+        }
+      } >
+        <Drawer.Screen name='Home' component={Home} />
+        <Drawer.Screen name='Student Union' component={SU} />
+        <Drawer.Screen name='Homer Babbidge Library' component={Lib} />
+        <Drawer.Screen name='UConn Student Recreation Center' component={Recreation} />
+        <Drawer.Screen name='Jorgensen Center' component={Jorgen} />
+        <Drawer.Screen name='William Benton Museum' component={Muse} />
+      </Drawer.Navigator>
+    </NavigationContainer>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
